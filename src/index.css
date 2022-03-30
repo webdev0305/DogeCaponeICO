@@ -1,0 +1,14 @@
+/* ./src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+    background-color: #dda332;
+    font-family: VCROSDMono;
+}
+
+@font-face {
+    font-family: VCROSDMono;
+    src: url(VCR_OSD_MONO_1.001.ttf);
+}
