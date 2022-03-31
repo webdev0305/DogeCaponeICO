@@ -57,10 +57,10 @@ export default function Demo() {
   const disabled = !triedEager || !!activatingConnector || connected || !!error;
   return (
     <Header>
-      <div className="flex flex-row w-full ml-4 mr-4 justify-between items-center">
-        <div>&nbsp;</div>
-        <img src="src/dogecapone.png" alt="logo"/>
-        <div >
+      <div className="flex flex-row w-full ml-4 mr-4 justify-center items-center">
+        {/* <img src="/dogecapone.png" alt="logo"/> */}
+        <span className="text-6xl">Doge Capone</span>
+        
           {connected?
             <button
               className="btn bg-yellow-400 hover:bg-yellow-300 text-black border-inherit"
@@ -82,12 +82,8 @@ export default function Demo() {
               activate(injected);
             }}
             >
-          <div>
-            {activating && <p className="btn loading">loading...</p>}
-          </div>
-          Connect Wallet
-        </button>}
-        </div>
+            Connect Wallet
+          </button>}
       </div>
     </Header>
   );

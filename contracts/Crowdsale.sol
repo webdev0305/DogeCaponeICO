@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -19,7 +20,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
  * the methods to add functionality. Consider using 'super' where appropriate to concatenate
  * behavior.
  */
-contract Crowdsale is Context, ReentrancyGuard {
+contract Crowdsale is Context, ReentrancyGuard, Ownable {
 	using SafeERC20 for IERC20;
 
 	// The token being sold
@@ -95,6 +96,10 @@ contract Crowdsale is Context, ReentrancyGuard {
 		return _token;
 	}
 
+	function updateToken(IERC20 token) public onlyOwner {
+		_token = token;
+	}
+
 	/**
 	 * @return the address where funds are collected.
 	 */
@@ -102,11 +107,21 @@ contract Crowdsale is Context, ReentrancyGuard {
 		return _wallet;
 	}
 
+	function updateWallet(address payable _account) public onlyOwner {
+		_wallet =  _account;
+	}
+
 	/**
 	 * @return the number of token units a buyer gets per wei.
 	 */
 	function rate() public view returns (uint256) {
 		return _rate;
+	}
+
+	
+
+	function updateRate(uint256 _value) public onlyOwner {
+		_rate = _value;
 	}
 
 	/**

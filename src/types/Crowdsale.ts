@@ -4,9 +4,11 @@
 import {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   PopulatedTransaction,
   Signer,
@@ -26,8 +28,14 @@ export interface CrowdsaleInterface extends utils.Interface {
   functions: {
     "buyTokens(address)": FunctionFragment;
     "holderWeiRaised(address)": FunctionFragment;
+    "owner()": FunctionFragment;
     "rate()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "token()": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
+    "updateRate(uint256)": FunctionFragment;
+    "updateToken(address)": FunctionFragment;
+    "updateWallet(address)": FunctionFragment;
     "wallet()": FunctionFragment;
     "weiRaised()": FunctionFragment;
   };
@@ -37,8 +45,26 @@ export interface CrowdsaleInterface extends utils.Interface {
     functionFragment: "holderWeiRaised",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "rate", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateRate",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "updateToken", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "updateWallet",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "wallet", values?: undefined): string;
   encodeFunctionData(functionFragment: "weiRaised", values?: undefined): string;
 
@@ -47,17 +73,45 @@ export interface CrowdsaleInterface extends utils.Interface {
     functionFragment: "holderWeiRaised",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "rate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "updateRate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateWallet",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "wallet", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "weiRaised", data: BytesLike): Result;
 
   events: {
+    "OwnershipTransferred(address,address)": EventFragment;
     "TokensPurchased(address,address,uint256,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokensPurchased"): EventFragment;
 }
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  { previousOwner: string; newOwner: string }
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export type TokensPurchasedEvent = TypedEvent<
   [string, string, BigNumber, BigNumber],
@@ -109,9 +163,35 @@ export interface Crowdsale extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
     rate(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     token(overrides?: CallOverrides): Promise<[string]>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updateRate(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updateToken(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updateWallet(
+      _account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     wallet(overrides?: CallOverrides): Promise<[string]>;
 
@@ -128,9 +208,35 @@ export interface Crowdsale extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  owner(overrides?: CallOverrides): Promise<string>;
+
   rate(overrides?: CallOverrides): Promise<BigNumber>;
 
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   token(overrides?: CallOverrides): Promise<string>;
+
+  transferOwnership(
+    newOwner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updateRate(
+    _value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updateToken(
+    token: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updateWallet(
+    _account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   wallet(overrides?: CallOverrides): Promise<string>;
 
@@ -144,9 +250,24 @@ export interface Crowdsale extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    owner(overrides?: CallOverrides): Promise<string>;
+
     rate(overrides?: CallOverrides): Promise<BigNumber>;
 
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
     token(overrides?: CallOverrides): Promise<string>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateRate(_value: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    updateToken(token: string, overrides?: CallOverrides): Promise<void>;
+
+    updateWallet(_account: string, overrides?: CallOverrides): Promise<void>;
 
     wallet(overrides?: CallOverrides): Promise<string>;
 
@@ -154,6 +275,15 @@ export interface Crowdsale extends BaseContract {
   };
 
   filters: {
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): OwnershipTransferredEventFilter;
+
     "TokensPurchased(address,address,uint256,uint256)"(
       purchaser?: string | null,
       beneficiary?: string | null,
@@ -179,9 +309,35 @@ export interface Crowdsale extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
     rate(overrides?: CallOverrides): Promise<BigNumber>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     token(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updateRate(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updateToken(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updateWallet(
+      _account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     wallet(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -199,9 +355,35 @@ export interface Crowdsale extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     rate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateRate(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateToken(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateWallet(
+      _account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     wallet(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

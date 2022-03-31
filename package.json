@@ -7,7 +7,8 @@
     "serve": "vite preview",
     "prepare": "husky install",
     "lint:sol": "npx solhint 'contracts/**/*.sol'",
-    "test": "mocha --exit --recursive"
+    "test": "mocha --exit --recursive",
+    "deploy_bsctest": "npx hardhat run --network bsctestnet scripts/deploy_itmantokencrowdsale.js"
   },
   "dependencies": {
     "@tailwindcss/typography": "0.5.2",

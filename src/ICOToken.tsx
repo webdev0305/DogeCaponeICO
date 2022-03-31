@@ -139,16 +139,22 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
         .then(() => fetchCrowdsaleTokenInfo())
         .catch(logger.error);
     } catch (error) {
+      toast.error(parseError(error))
       logger.error(error);
     }
   };
 
-  // const totalCost = (1 / Number(price)) * amount;
+  const parseError = (ex: any) => {
+    if (typeof ex == 'object')
+      return (ex.data?.message ?? null) ? ex.data.message.replace('execution reverted: ', '') : ex.message
+    return ex
+  }
+
   return (
-    <div className="relative pb-3 sm:max-w-5xl sm:mx-auto pt-40 bg-[#dda332]">
+    <div className="relative pb-3 sm:max-w-5xl sm:mx-auto pt-10 bg-[#fdc514]">
       {chainId !== 97 && (
         <>
-          <div className="alert">
+          <div className="alert mb-2">
             <div className="flex-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -170,62 +176,50 @@ const ICOToken = ({ crowdsaleAddress }: Props) => {
         </>
       )}
 
-      <div className="flex items-center w-full px-4 py-10 bg-cover card border-2 border-black rounded-none bg-[#dda332]">
+      <div className="flex items-center w-full px-4 py-6 bg-cover card bg-[#fdc514]">
         {/* <TokenInfo tokenAddress={tokenAddress} /> */}
-
+        
         <div className="text-center w-3/4">
+          <div className="">
+            <h2 className="text-5xl p-2 text-black mb-4">Private Sale</h2>
+          </div>
           <div className="bg-black">
             <h2 className="text-xl p-2 text-[#f8e670]">My Contribution {Number(subTotal)/1e18} BNB</h2>
-          </div>
-          <div className="">
-            <h2 className="text-2xl p-2 text-black">Doge Capone Private Sale</h2>
           </div>
           {!account && 
             <div>
               <h2 className="text-2xl p-2 text-black">Please connect your wallet to deposit</h2>
             </div>
           }
-
-          <div className="">
+          <div>
             <h2 className="text-2xl p-2 text-black">{Number(totalSale)/1e18}/50 BNB Filled</h2>
           </div>
+          <div className="mt-4 mb-8">
             <input
               type="number"
+              min="0.1"
               max="2"
+              step="0.1"
               value={amount}
               onChange={(evt) => setAmount(evt.target.valueAsNumber <=2 ? evt.target.valueAsNumber.toString():'')}
-              className="bg-[#dda332] border border-black p-1 w-[200]"
+              className="bg-[#fdc514] border border-black p-1 w-[10rem] text-black text-2xl"
             />
-            <div>
-              <div className="justify-center card-actions my-2">
-                <button onClick={buyTokens} type="button" className="btn btn-outline text-black">
-                  Claim
+          </div>
+            {account && <div>
+              <div className="justify-center card-actions my-4">
+                <button onClick={buyTokens} type="button" className="btn btn-outline text-black text-xl">
+                  BUY
                 </button>
               </div>
-              {/* <div className="badge badge-md">Total: {totalCost} ETH</div> */}
             </div>
+            }
             <div className="bg-black mb-2">
-              <h2 className="text-xl p-2 text-[#f8e670]">Hard Cap 50BNB</h2>
-            </div>
-            <div className="bg-black">
               <h2 className="text-xl p-2 text-[#f8e670]">Min/Max Contribution 0.1/2 BNB </h2>
             </div>
+            <div className="bg-black">
+              <h2 className="text-xl p-2 text-[#f8e670]">Hard Cap 50BNB</h2>
+            </div>
         </div>
-
-        {/* <div className="divider"></div>
-
-        <div className="items-center justify-center max-w-2xl px-4 py-4 mx-auto text-xl border-orange-500 lg:flex md:flex">
-          <div className="p-2 font-semibold">
-            <a
-              href={`https://ropsten.etherscan.io/address/${tokenAddress}`}
-              target="_blank"
-              className="px-4 py-1 ml-2 text-white bg-orange-500 rounded-full shadow focus:outline-none"
-              rel="noreferrer"
-            >
-              View Token on Etherscan
-            </a>
-          </div>
-        </div> */}
       </div>
     </div>
   );

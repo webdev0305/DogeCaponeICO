@@ -13,7 +13,7 @@ export function Header({ children }: Props) {
   const { active, error } = useWeb3React();
 
   return (
-    <div className="mb-2 shadow-lg navbar bg-black text-neutral-content fixed z-10">
+    <div className="header mb-2 shadow-lg navbar bg-black text-neutral-content fixed z-10">
       <div className="flex-1 px-2 mx-2">
         {/* <span className="text-lg font-bold">{active ? "🟢" : error ? "🔴" : "🟠"}</span> */}
         {children}
