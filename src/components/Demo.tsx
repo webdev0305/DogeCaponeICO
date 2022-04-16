@@ -58,8 +58,8 @@ export default function Demo() {
   return (
     <Header>
       <div className="flex flex-row w-full ml-4 mr-4 justify-center items-center">
-        {/* <img src="/dogecapone.png" alt="logo"/> */}
-        <span className="text-6xl">Doge Capone</span>
+        <img src="/dogecapone.png" alt="logo"/>
+        {/* <span className="text-6xl">Doge Capone</span> */}
         
           {connected?
             <button

@@ -33,50 +33,50 @@ const duration = {
 };
 
 async function main() {
+  
+  
   // const [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
   //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  
   // const marketingAddress = '0x8c013b61dba6de1e6a8af25ed6a78212182af2bf'
   // const devAddress = '0x3d4912634535080e95dd3994d800c6156dda30db'
-  // // We get the contract to deploy
+  // // // We get the contract to deploy
   // const Token = await ethers.getContractFactory("DogeCaponecoin");
   // const token = await Token.deploy(marketingAddress, devAddress);
 
   // await token.deployed();
   // console.log("Token deployed to:", token.address);
-  // const totalSupply = await token.totalSupply();
-  // console.log("Total Supply", totalSupply);
 
   // // deploy crowdsale contract
   const TokenCrowdsale = await ethers.getContractFactory("Crowdsale");
   const rate = 500; // 500 wei per token
   const tokenCrowdsale = await TokenCrowdsale.deploy(
     rate,
-    '0x49c3Ea488e4F57e91b0aB002A16107f2A5EAD07d',
-    '0x8E17f94dA2Bfaf70991A4a80bc153931a8026025',
+    '0x84cAE31E38Dc2f7932a725Da6daE87f732635974',
+    '0x53a8e10b2dF99Bc00764Fa94c35C6AD77F8B4eB8',
   );
 
   await tokenCrowdsale.deployed();
   console.log("tokenCrowdsale deployed to:", tokenCrowdsale.address);
-  // // console.log(Number(await token.totalSupply()))
 
   // await (await tokenCrowdsale.updateToken(token.address)).wait()
   // await(await tokenCrowdsale.updateWallet(owner.address)).wait()
-  await(await tokenCrowdsale.updateRate(1000)).wait()
+  // await(await tokenCrowdsale.updateRate(1000)).wait()
   // transfer tokens to crowdsale contract
-  await (await token.transfer(tokenCrowdsale.address, ethers.utils.parseEther("50000"))).wait()
-  console.log(await token.balanceOf(tokenCrowdsale.address))
-  // approve crowdsale contract to spend 70% tokens
-  
-  // await token.approve(
-  //   tokenCrowdsale.address,
-  //   ethers.utils.parseEther("50000")
-  //   // totalSupply.mul(ethers.BigNumber.from(70)).div(ethers.BigNumber.from(100))
-  // );
+  // await (await token.transfer(tokenCrowdsale.address, ethers.utils.parseEther("50000"))).wait()
+  // console.log((await token.balanceOf(tokenCrowdsale.address)).toString())
+  // // token transfer enalbe
+  // const tokenCrowdsale = ethers.getContractAt("Crowdsale","0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512")
+  // await (await tokenCrowdsale.setEnableTransferToken(true)).wait()
+
+//  const tokenCrowdsale = await ethers.getContractAt("Crowdsale","0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512")
+//   await (await tokenCrowdsale.setEnableTransferToken(true)).wait()
+  // console.log(await latestTime())
+  //   await network.provider.send("evm_increaseTime", [1000 * 60]);
+  //   await network.provider.send("evm_mine");
+  //   console.log(await latestTime())
 }
 
 // We recommend this pattern to be able to use async/await everywhere

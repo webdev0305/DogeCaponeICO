@@ -26,11 +26,23 @@ import type {
 export interface CrowdsaleInterface extends utils.Interface {
   contractName: "Crowdsale";
   functions: {
+    "_getClaimableTokenAmount(address)": FunctionFragment;
+    "_processPurchase()": FunctionFragment;
     "buyTokens(address)": FunctionFragment;
+    "claimableRatePerDay()": FunctionFragment;
+    "enableTransferToken()": FunctionFragment;
     "holderWeiRaised(address)": FunctionFragment;
+    "maxTotalWeiAmount()": FunctionFragment;
+    "maxWeiAmountForHolder()": FunctionFragment;
     "owner()": FunctionFragment;
     "rate()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "setClaimableRatePerDay(uint32)": FunctionFragment;
+    "setEnableTransferToken(bool)": FunctionFragment;
+    "setMaxTotalWeiAmount(uint256)": FunctionFragment;
+    "setMaxWeiAmountForHolder(uint256)": FunctionFragment;
+    "setStartTime(uint256)": FunctionFragment;
+    "startTime()": FunctionFragment;
     "token()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "updateRate(uint256)": FunctionFragment;
@@ -38,12 +50,37 @@ export interface CrowdsaleInterface extends utils.Interface {
     "updateWallet(address)": FunctionFragment;
     "wallet()": FunctionFragment;
     "weiRaised()": FunctionFragment;
+    "withdrawToken(address,uint256)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "_getClaimableTokenAmount",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "_processPurchase",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "buyTokens", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "claimableRatePerDay",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "enableTransferToken",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "holderWeiRaised",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxTotalWeiAmount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxWeiAmountForHolder",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "rate", values?: undefined): string;
@@ -51,6 +88,27 @@ export interface CrowdsaleInterface extends utils.Interface {
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "setClaimableRatePerDay",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setEnableTransferToken",
+    values: [boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaxTotalWeiAmount",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaxWeiAmountForHolder",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setStartTime",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "startTime", values?: undefined): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -67,10 +125,38 @@ export interface CrowdsaleInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "wallet", values?: undefined): string;
   encodeFunctionData(functionFragment: "weiRaised", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "withdrawToken",
+    values: [string, BigNumberish]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "_getClaimableTokenAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "_processPurchase",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "buyTokens", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "claimableRatePerDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "enableTransferToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "holderWeiRaised",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "maxTotalWeiAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "maxWeiAmountForHolder",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -79,6 +165,27 @@ export interface CrowdsaleInterface extends utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setClaimableRatePerDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setEnableTransferToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaxTotalWeiAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaxWeiAmountForHolder",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setStartTime",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "startTime", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
@@ -95,10 +202,14 @@ export interface CrowdsaleInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "wallet", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "weiRaised", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawToken",
+    data: BytesLike
+  ): Result;
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "TokensPurchased(address,address,uint256,uint256)": EventFragment;
+    "TokensPurchased(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -114,13 +225,8 @@ export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
 export type TokensPurchasedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber],
-  {
-    purchaser: string;
-    beneficiary: string;
-    value: BigNumber;
-    amount: BigNumber;
-  }
+  [string, string, BigNumber],
+  { purchaser: string; beneficiary: string; amount: BigNumber }
 >;
 
 export type TokensPurchasedEventFilter = TypedEventFilter<TokensPurchasedEvent>;
@@ -153,15 +259,32 @@ export interface Crowdsale extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    _getClaimableTokenAmount(
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    _processPurchase(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     buyTokens(
       beneficiary: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    claimableRatePerDay(overrides?: CallOverrides): Promise<[number]>;
+
+    enableTransferToken(overrides?: CallOverrides): Promise<[boolean]>;
+
     holderWeiRaised(
       account: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    maxTotalWeiAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    maxWeiAmountForHolder(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -170,6 +293,33 @@ export interface Crowdsale extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    setClaimableRatePerDay(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setEnableTransferToken(
+      _status: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setMaxTotalWeiAmount(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setMaxWeiAmountForHolder(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setStartTime(
+      _startTime: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    startTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     token(overrides?: CallOverrides): Promise<[string]>;
 
@@ -184,7 +334,7 @@ export interface Crowdsale extends BaseContract {
     ): Promise<ContractTransaction>;
 
     updateToken(
-      token: string,
+      tokenAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -196,17 +346,40 @@ export interface Crowdsale extends BaseContract {
     wallet(overrides?: CallOverrides): Promise<[string]>;
 
     weiRaised(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    withdrawToken(
+      beneficiary: string,
+      tokenAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
+
+  _getClaimableTokenAmount(
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  _processPurchase(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   buyTokens(
     beneficiary: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  claimableRatePerDay(overrides?: CallOverrides): Promise<number>;
+
+  enableTransferToken(overrides?: CallOverrides): Promise<boolean>;
+
   holderWeiRaised(
     account: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  maxTotalWeiAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxWeiAmountForHolder(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -215,6 +388,33 @@ export interface Crowdsale extends BaseContract {
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  setClaimableRatePerDay(
+    _value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setEnableTransferToken(
+    _status: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setMaxTotalWeiAmount(
+    _value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setMaxWeiAmountForHolder(
+    _value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setStartTime(
+    _startTime: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  startTime(overrides?: CallOverrides): Promise<BigNumber>;
 
   token(overrides?: CallOverrides): Promise<string>;
 
@@ -229,7 +429,7 @@ export interface Crowdsale extends BaseContract {
   ): Promise<ContractTransaction>;
 
   updateToken(
-    token: string,
+    tokenAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -242,19 +442,67 @@ export interface Crowdsale extends BaseContract {
 
   weiRaised(overrides?: CallOverrides): Promise<BigNumber>;
 
+  withdrawToken(
+    beneficiary: string,
+    tokenAmount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
+    _getClaimableTokenAmount(
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    _processPurchase(overrides?: CallOverrides): Promise<void>;
+
     buyTokens(beneficiary: string, overrides?: CallOverrides): Promise<void>;
+
+    claimableRatePerDay(overrides?: CallOverrides): Promise<number>;
+
+    enableTransferToken(overrides?: CallOverrides): Promise<boolean>;
 
     holderWeiRaised(
       account: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    maxTotalWeiAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxWeiAmountForHolder(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
     rate(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    setClaimableRatePerDay(
+      _value: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setEnableTransferToken(
+      _status: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMaxTotalWeiAmount(
+      _value: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMaxWeiAmountForHolder(
+      _value: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setStartTime(
+      _startTime: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    startTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     token(overrides?: CallOverrides): Promise<string>;
 
@@ -265,13 +513,19 @@ export interface Crowdsale extends BaseContract {
 
     updateRate(_value: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    updateToken(token: string, overrides?: CallOverrides): Promise<void>;
+    updateToken(tokenAddress: string, overrides?: CallOverrides): Promise<void>;
 
     updateWallet(_account: string, overrides?: CallOverrides): Promise<void>;
 
     wallet(overrides?: CallOverrides): Promise<string>;
 
     weiRaised(overrides?: CallOverrides): Promise<BigNumber>;
+
+    withdrawToken(
+      beneficiary: string,
+      tokenAmount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -284,30 +538,45 @@ export interface Crowdsale extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
-    "TokensPurchased(address,address,uint256,uint256)"(
+    "TokensPurchased(address,address,uint256)"(
       purchaser?: string | null,
       beneficiary?: string | null,
-      value?: null,
       amount?: null
     ): TokensPurchasedEventFilter;
     TokensPurchased(
       purchaser?: string | null,
       beneficiary?: string | null,
-      value?: null,
       amount?: null
     ): TokensPurchasedEventFilter;
   };
 
   estimateGas: {
+    _getClaimableTokenAmount(
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    _processPurchase(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     buyTokens(
       beneficiary: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    claimableRatePerDay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    enableTransferToken(overrides?: CallOverrides): Promise<BigNumber>;
+
     holderWeiRaised(
       account: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    maxTotalWeiAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxWeiAmountForHolder(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -316,6 +585,33 @@ export interface Crowdsale extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    setClaimableRatePerDay(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setEnableTransferToken(
+      _status: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setMaxTotalWeiAmount(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setMaxWeiAmountForHolder(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setStartTime(
+      _startTime: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    startTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     token(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -330,7 +626,7 @@ export interface Crowdsale extends BaseContract {
     ): Promise<BigNumber>;
 
     updateToken(
-      token: string,
+      tokenAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -342,16 +638,45 @@ export interface Crowdsale extends BaseContract {
     wallet(overrides?: CallOverrides): Promise<BigNumber>;
 
     weiRaised(overrides?: CallOverrides): Promise<BigNumber>;
+
+    withdrawToken(
+      beneficiary: string,
+      tokenAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    _getClaimableTokenAmount(
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    _processPurchase(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     buyTokens(
       beneficiary: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    claimableRatePerDay(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    enableTransferToken(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     holderWeiRaised(
       account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    maxTotalWeiAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxWeiAmountForHolder(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -362,6 +687,33 @@ export interface Crowdsale extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    setClaimableRatePerDay(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setEnableTransferToken(
+      _status: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMaxTotalWeiAmount(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMaxWeiAmountForHolder(
+      _value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setStartTime(
+      _startTime: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    startTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -376,7 +728,7 @@ export interface Crowdsale extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     updateToken(
-      token: string,
+      tokenAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -388,5 +740,11 @@ export interface Crowdsale extends BaseContract {
     wallet(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     weiRaised(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    withdrawToken(
+      beneficiary: string,
+      tokenAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }

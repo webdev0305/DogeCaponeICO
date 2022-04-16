@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
 /**
  * @title Crowdsale
  * @dev Borrow from https://github.dev/OpenZeppelin/openzeppelin-contracts/blob/docs-v2.x/contracts/crowdsale/Crowdsale.ol and upgrade to solidity v0.8.0
@@ -37,26 +36,29 @@ contract Crowdsale is Context, ReentrancyGuard, Ownable {
 
 	// Amount of wei raised
 	uint256 private _weiRaised;
+	bool public enableTransferToken = false;
+	uint256 public startTime = block.timestamp;  // + 30 days;
+	uint32 public claimableRatePerDay = 333;  // 10000 is 100%
+	uint256 public maxWeiAmountForHolder = 2 ether;
+	uint256 public maxTotalWeiAmount = 50 ether;
 
 	mapping(address => uint256) private _holdersWeiRaised;
+	mapping(address => uint256) private _holderClaimedAmount;
 
 	/**
 	 * Event for token purchase logging
 	 * @param purchaser who paid for the tokens
 	 * @param beneficiary who got the tokens
-	 * @param value weis paid for purchase
 	 * @param amount amount of tokens purchased
 	 */
 	event TokensPurchased(
 		address indexed purchaser,
 		address indexed beneficiary,
-		uint256 value,
 		uint256 amount
 	);
 
 	/**
 	 * @param rate Number of token units a buyer gets per wei
-	 * @dev The rate is the conversion between wei and the smallest and indivisible
 	 * token unit. So, if you are using a rate of 1 with a ERC20Detailed token
 	 * with 3 decimals called TOK, 1 wei will give you 1 unit, or 0.001 TOK.
 	 * @param wallet Address where collected funds will be forwarded to
@@ -96,8 +98,12 @@ contract Crowdsale is Context, ReentrancyGuard, Ownable {
 		return _token;
 	}
 
-	function updateToken(IERC20 token) public onlyOwner {
-		_token = token;
+	function updateToken(IERC20 tokenAddress) public onlyOwner {
+		_token = tokenAddress;
+	}
+
+	function setEnableTransferToken(bool _status) public onlyOwner {
+		enableTransferToken = _status;
 	}
 
 	/**
@@ -138,6 +144,14 @@ contract Crowdsale is Context, ReentrancyGuard, Ownable {
 		return _holdersWeiRaised[account];
 	}
 
+	function setMaxWeiAmountForHolder(uint256 _value) public onlyOwner() {
+		maxWeiAmountForHolder = _value;
+	}
+
+	function setMaxTotalWeiAmount(uint256 _value) public onlyOwner() {
+		maxTotalWeiAmount = _value;
+	}
+
 	/**
 	 * @dev low level token purchase ***DO NOT OVERRIDE***
 	 * This function has a non-reentrancy guard, so it shouldn't be called by
@@ -147,21 +161,12 @@ contract Crowdsale is Context, ReentrancyGuard, Ownable {
 	function buyTokens(address beneficiary) public payable nonReentrant {
 		uint256 weiAmount = msg.value;
 		_preValidatePurchase(beneficiary, weiAmount);
-
-		// calculate token amount to be created
-		uint256 tokens = _getTokenAmount(weiAmount);
-
 		// update state
 		_weiRaised = _weiRaised + weiAmount;
 		_holdersWeiRaised[msg.sender] =  _holdersWeiRaised[msg.sender] + weiAmount;
 
-		_processPurchase(beneficiary, tokens);
-		emit TokensPurchased(_msgSender(), beneficiary, weiAmount, tokens);
-
-		_updatePurchasingState(beneficiary, weiAmount);
-
 		_forwardFunds();
-		_postValidatePurchase(beneficiary, weiAmount);
+		_postValidatePurchase();
 	}
 
 	/**
@@ -189,14 +194,12 @@ contract Crowdsale is Context, ReentrancyGuard, Ownable {
 	/**
 	 * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid
 	 * conditions are not met.
-	 * @param beneficiary Address performing the token purchase
-	 * @param weiAmount Value in wei involved in the purchase
 	 */
-	function _postValidatePurchase(address beneficiary, uint256 weiAmount)
+	function _postValidatePurchase()
 		internal
 		view
 	{
-		require(_holdersWeiRaised[msg.sender] <= 2 ether, "Crowdsale: weiAmount must be less than 2 BNB!");
+		require(_holdersWeiRaised[msg.sender] <= maxWeiAmountForHolder, "Crowdsale: weiAmount must be less than 2 BNB!");
 		this;
 		// solhint-disable-previous-line no-empty-blocks
 	}
@@ -207,23 +210,26 @@ contract Crowdsale is Context, ReentrancyGuard, Ownable {
 	 * @param beneficiary Address performing the token purchase
 	 * @param tokenAmount Number of tokens to be emitted
 	 */
-	function _deliverTokens(address beneficiary, uint256 tokenAmount)
-		internal
-		virtual
+	function _deliverTokens(address beneficiary, uint256 tokenAmount) internal virtual
 	{
+		_holderClaimedAmount[beneficiary] += tokenAmount;
 		_token.safeTransfer(beneficiary, tokenAmount);
 	}
 
 	/**
 	 * @dev Executed when a purchase has been validated and is ready to be executed. Doesn't necessarily emit/send
 	 * tokens.
-	 * @param beneficiary Address receiving the tokens
-	 * @param tokenAmount Number of tokens to be purchased
 	 */
-	function _processPurchase(address beneficiary, uint256 tokenAmount)
-		internal
+	function _processPurchase()	public
 	{
-		_deliverTokens(beneficiary, tokenAmount);
+		require(enableTransferToken, "Token Transfer disabled!");
+		address beneficiary = msg.sender;
+		require(_holdersWeiRaised[msg.sender] > 0, "Claimable Amount is zero");
+		// calculate token amount to be created
+		uint256 claimableTokenAmount = _getClaimableTokenAmount(beneficiary);
+		_deliverTokens(beneficiary, claimableTokenAmount);
+		
+		emit TokensPurchased(_msgSender(), beneficiary, claimableTokenAmount);
 	}
 
 	/**
@@ -240,15 +246,15 @@ contract Crowdsale is Context, ReentrancyGuard, Ownable {
 
 	/**
 	 * @dev Override to extend the way in which ether is converted to tokens.
-	 * @param weiAmount Value in wei to be converted into tokens
+	 * @param account Address of claimable holder
 	 * @return Number of tokens that can be purchased with the specified _weiAmount
 	 */
-	function _getTokenAmount(uint256 weiAmount)
-		internal
-		view
-		returns (uint256)
+	function _getClaimableTokenAmount(address account) public view returns (uint256)
 	{
-		return weiAmount * _rate;
+		uint256 weiAmount = _holdersWeiRaised[account];
+		uint256 totalClaimableAmount = weiAmount * _rate;
+		uint256 claimableAmount = totalClaimableAmount * claimableRatePerDay/10000 * (block.timestamp - startTime)/86400;
+		return claimableAmount - _holderClaimedAmount[account];
 	}
 
 	/**
@@ -256,5 +262,18 @@ contract Crowdsale is Context, ReentrancyGuard, Ownable {
 	 */
 	function _forwardFunds() internal {
 		_wallet.transfer(msg.value);
+	}
+
+	function withdrawToken(address beneficiary, uint256 tokenAmount) public onlyOwner{
+		_token.safeTransfer(beneficiary, tokenAmount);
+	}
+
+	function setStartTime (uint256 _startTime) public onlyOwner {
+		startTime = _startTime;
+	}
+	function setClaimableRatePerDay(uint32 _value) public onlyOwner{
+		// 10000 is 100%
+		require(_value <= 10000, "Max rate is 10000!");
+		claimableRatePerDay = _value;		
 	}
 }

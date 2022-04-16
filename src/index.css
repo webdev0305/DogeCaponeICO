@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-body{
+/* body{
     background-color: #fdc514;
     font-family: Berlin_Sans;
 }
@@ -11,7 +11,19 @@ body{
 @font-face {
     font-family: Berlin_Sans;
     src: url(BerlinSansFBRegular.ttf);
+} */
+
+
+body{
+    background-color: #fdc514;
+    font-family: VCROSDMono;
 }
+
+@font-face {
+    font-family: VCROSDMono;
+    src: url(VCR_OSD_MONO_1.001.ttf);
+}
+
 
 .header {
     position: relative;
